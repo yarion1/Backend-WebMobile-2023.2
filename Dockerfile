@@ -10,4 +10,6 @@ COPY . .
 
 RUN npm run build
 
+COPY ./.env.production ./.env
+
 CMD [ "npm", "run", "start:dev" ]
