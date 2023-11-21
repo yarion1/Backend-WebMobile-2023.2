@@ -1,17 +1,22 @@
-import {Module} from '@nestjs/common';
-import {AppController} from './app.controller';
-import {AppService} from './app.service';
-import {TypeOrmModule} from '@nestjs/typeorm';
-import {TypeOrmConfigService} from './config/typeorm.config';
-import {ConfigModule} from "@nestjs/config";
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmConfigService } from './config/typeorm.config';
+import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { PlaylistsModule } from './playlists/playlists.module';
 
 @Module({
     imports: [ConfigModule.forRoot(), TypeOrmModule.forRootAsync({
         imports: [ConfigModule],
         useClass: TypeOrmConfigService,
-    }), AuthModule, UsersModule],
+    }),
+        AuthModule,
+        UsersModule,
+        PlaylistsModule
+    ],
     controllers: [AppController],
     providers: [AppService],
 })
