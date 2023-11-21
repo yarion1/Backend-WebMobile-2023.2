@@ -9,6 +9,9 @@ export class Playlist {
     @Column()
     name: string;
 
+    @Column()
+    type: string;
+
     @Column("json")
     contents_id: string;
 

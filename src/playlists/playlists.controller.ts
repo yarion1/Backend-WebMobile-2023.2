@@ -3,6 +3,7 @@ import { PlaylistsService } from './playlists.service';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Headers } from '@nestjs/common';
 
 @Controller('playlists')
 export class PlaylistsController {
@@ -10,8 +11,11 @@ export class PlaylistsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createPlaylistDto: CreatePlaylistDto) {
-    return this.playlistsService.create(createPlaylistDto);
+  create(
+    @Body() createPlaylistDto: CreatePlaylistDto,
+    @Headers() headers,
+  ) {
+    return this.playlistsService.create(createPlaylistDto, headers);
   }
 
   @UseGuards(JwtAuthGuard)

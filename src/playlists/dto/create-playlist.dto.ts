@@ -1,4 +1,4 @@
-import { IsJSON, IsString } from "class-validator";
+import { IsJSON, IsOptional, IsString } from "class-validator";
 
 export class CreatePlaylistDto {
 
@@ -9,5 +9,9 @@ export class CreatePlaylistDto {
     contents_id: any;
 
     @IsString()
+    @IsOptional()
     user_id: number;
+
+    @IsString()
+    type: string;
 }
