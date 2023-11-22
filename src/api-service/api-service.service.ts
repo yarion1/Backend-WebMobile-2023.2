@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ApiServiceService {
-  constructor(private httpService: HttpService) { }
+  constructor(
+    private httpService: HttpService,
+    private configService: ConfigService
+  ) { }
+
 
   async getHttpResponse(url: string): Promise<any> {
     const config = {
       headers: {
         Accept: 'application/json',
-        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ZDg1NWJlNDNhZTE0ZjJlN2RkNjlhM2ViNzU2YWYzNCIsInN1YiI6IjYxZjA0OWQyZDExZTBlMDA0NjZiMDQwYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.PbyXVRy-QKIPp-Q3xihsWjaO8pJ54Ez4gZbl3evCRvo'
+        Authorization: `Bearer ${this.configService.get<string>('JWT_TMDB')}`
       }
     }
     return await this.httpService
@@ -24,7 +29,7 @@ export class ApiServiceService {
     const config = {
       headers: {
         Accept: 'application/json',
-        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ZDg1NWJlNDNhZTE0ZjJlN2RkNjlhM2ViNzU2YWYzNCIsInN1YiI6IjYxZjA0OWQyZDExZTBlMDA0NjZiMDQwYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.PbyXVRy-QKIPp-Q3xihsWjaO8pJ54Ez4gZbl3evCRvo'
+        Authorization: `Bearer ${this.configService.get<string>('JWT_TMDB')}`
       }
     }
 
