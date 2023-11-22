@@ -19,21 +19,26 @@ export class PlaylistsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get()
-  findAll() {
-    return this.playlistsService.findAll();
-  }
-
-  @Get(':id')
+  @Get('byId/:id')
   findOne(@Param('id') id: string) {
-    return this.playlistsService.findOne(+id);
+    return this.playlistsService.findById(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('')
+  findPlayLists(
+    @Headers() headers,
+  ) {
+    return this.playlistsService.findPlayLists(headers);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePlaylistDto: UpdatePlaylistDto) {
     return this.playlistsService.update(+id, updatePlaylistDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.playlistsService.remove(+id);

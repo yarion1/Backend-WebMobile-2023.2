@@ -7,6 +7,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PlaylistsModule } from './playlists/playlists.module';
+import { ApiServiceModule } from './api-service/api-service.module';
 
 @Module({
     imports: [ConfigModule.forRoot(), TypeOrmModule.forRootAsync({
@@ -15,7 +16,8 @@ import { PlaylistsModule } from './playlists/playlists.module';
     }),
         AuthModule,
         UsersModule,
-        PlaylistsModule
+        PlaylistsModule,
+        ApiServiceModule
     ],
     controllers: [AppController],
     providers: [AppService],

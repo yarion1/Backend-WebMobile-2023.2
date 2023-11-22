@@ -1,4 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreatePlaylistDto } from './create-playlist.dto';
+import { IsJSON } from 'class-validator';
 
-export class UpdatePlaylistDto extends PartialType(CreatePlaylistDto) {}
+export class UpdatePlaylistDto {
+    @IsJSON()
+    contents_id: any;
+}
