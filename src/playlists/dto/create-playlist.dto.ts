@@ -6,7 +6,7 @@ export class CreatePlaylistDto {
     name: string;
 
     @IsJSON()
-    contents_id: any;
+    contents: any;
 
     @IsString()
     @IsOptional()

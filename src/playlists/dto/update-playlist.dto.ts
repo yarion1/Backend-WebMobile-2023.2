@@ -4,5 +4,5 @@ import { IsJSON } from 'class-validator';
 
 export class UpdatePlaylistDto {
     @IsJSON()
-    contents_id: any;
+    contents: any;
 }
