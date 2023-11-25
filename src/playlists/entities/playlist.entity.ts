@@ -13,7 +13,7 @@ export class Playlist {
     type: string;
 
     @Column("json")
-    contents_id: string;
+    contents: string;
 
     @ManyToOne(() => User, (user) => user.id)
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })

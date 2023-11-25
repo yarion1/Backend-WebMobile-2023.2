@@ -35,10 +35,6 @@ export class PlaylistsService {
 
   async create(createPlaylistDto: CreatePlaylistDto, headers: any) {
 
-    if (createPlaylistDto.contents_id.length > 10) {
-      throw new HttpException('Length max for playlist = 10', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     const token = JSON.stringify(this.jwtService.decode(headers.authorization.split(" ")[1]));
     const id_user = JSON.parse(token)._id;
     const date = new Date()
@@ -46,7 +42,7 @@ export class PlaylistsService {
     try {
       const playlist = this.playlistRepository.create({
         ...createPlaylistDto,
-        contents_id: JSON.stringify(createPlaylistDto.contents_id),
+        contents: JSON.stringify(createPlaylistDto.contents),
         created_at: date,
         updated_at: date,
         user_id: id_user
@@ -64,24 +60,14 @@ export class PlaylistsService {
   async findById(id: number) {
     try {
 
-      let data;
-      data = await this.playlistRepository.findOne({
+      const data = await this.playlistRepository.findOne({
         where: {
           id
         }
       })
 
-      const ids_contents = JSON.parse(data.contents_id)
-      const contents = [];
+      data.contents = JSON.parse(data.contents)
 
-      await Promise.all(ids_contents.map(async (item: number, index: number) => {
-        const url = data.type === 'movies' ? `https://api.themoviedb.org/3/movie/${item}` : `https://api.themoviedb.org/3/tv/${item}`;
-
-        const content = await this.apiServiceService.getHttpResponse(url);
-        contents.push(content);
-      }));
-
-      data.contents = contents;
       return data;
     } catch {
       throw new HttpException("Erro to list playlist", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -94,7 +80,7 @@ export class PlaylistsService {
         .createQueryBuilder()
         .update(Playlist)
         .set({
-          contents_id: JSON.stringify(updatePlaylistDto.contents_id)
+          contents: JSON.stringify(updatePlaylistDto.contents)
         })
         .where('id = :id', { id: id })
         .execute();
