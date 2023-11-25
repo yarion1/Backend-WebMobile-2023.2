@@ -17,7 +17,7 @@ export class PlayLists1700499898794 implements MigrationInterface {
                     { name: 'name', type: 'varchar(55)', isNullable: false },
                     { name: 'type', type: 'varchar(20)', isNullable: false },
                     { name: 'list_id', type: 'integer', isNullable: false },
-                    {name: 'contents_id', type: 'json', isNullable: false},
+                    {name: 'contents', type: 'json', isNullable: false},
                     {name: 'user_id', type: 'integer', isNullable: false},
                     { name: 'created_at', type: 'timestamp', default: 'now()' },
                     { name: 'updated_at', type: 'timestamp', default: 'now()' },
