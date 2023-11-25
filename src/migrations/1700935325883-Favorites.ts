@@ -14,7 +14,7 @@ export class Favorites1700935325883 implements MigrationInterface {
                         isGenerated: true,
                         generationStrategy: 'increment',
                     },
-                    {name: 'contents', type: 'json', isNullable: false},
+                    {name: 'contents', type: 'json', isNullable: true},
                     {name: 'user_id', type: 'integer', isNullable: false},
                     { name: 'created_at', type: 'timestamp', default: 'now()' },
                     { name: 'updated_at', type: 'timestamp', default: 'now()' },
