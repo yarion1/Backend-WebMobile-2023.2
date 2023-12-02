@@ -36,8 +36,6 @@ export class UsersService {
       throw new BadRequestException('Password must be at least 6 characters long');
     }
 
-    console.log(createUserDto)
-
     const date = new Date();
 
     const checkIfEmailExists = await this.usersRepository.findOne({
