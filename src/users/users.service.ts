@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { FavoritesService } from 'src/favorites/favorites.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +14,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly favoritesService: FavoritesService,
+    private readonly jwtService: JwtService
   ) { }
 
   async bcryptPassword(password: string) {
@@ -38,7 +40,9 @@ export class UsersService {
         });
         await this.usersRepository.save(createUser);
         createUser.password = undefined;
+
         await this.favoritesService.create(+createUser.id);
+
         return createUser;
       } catch (error) {
         if (
@@ -62,10 +66,6 @@ export class UsersService {
     }
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
-
   async findByEmail(email: string): Promise<User> {
     try {
       const user = await this.usersRepository.findOne({
@@ -79,15 +79,30 @@ export class UsersService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+  async update(headers: any, updateUserDto: UpdateUserDto) {
+    try {
+      const token = JSON.stringify(this.jwtService.decode(headers.authorization.split(" ")[1]));
+      const user_id = JSON.parse(token)._id;
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+      updateUserDto.password = await this.bcryptPassword(
+        updateUserDto.password,
+      );
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+      await this.usersRepository
+        .createQueryBuilder()
+        .update(User)
+        .set({
+          name: updateUserDto.name,
+          email: updateUserDto.email,
+          password: updateUserDto.password
+        })
+        .where('id = :id', { id: user_id })
+        .execute();
+
+      return true;
+    } catch (err) {
+      console.log(err)
+      throw new HttpException("Error to update users", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
   }
 }
