@@ -5,12 +5,14 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { FavoritesService } from 'src/favorites/favorites.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly favoritesService: FavoritesService,
   ) { }
 
   async bcryptPassword(password: string) {
@@ -36,6 +38,7 @@ export class UsersService {
         });
         await this.usersRepository.save(createUser);
         createUser.password = undefined;
+        await this.favoritesService.create(+createUser.id);
         return createUser;
       } catch (error) {
         if (
