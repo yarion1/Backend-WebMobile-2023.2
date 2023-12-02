@@ -68,4 +68,57 @@ export class FavoritesService {
       throw new HttpException("Error to get favotires", HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
+
+  async addFavorites(headers: any, updateFavoriteDto: UpdateFavoriteDto) {
+    try {
+      const favotires = await this.getFavorites(headers)
+
+      if (!favotires.contents) {
+        favotires.contents = JSON.stringify([updateFavoriteDto.content])
+      } else {
+        const arrayFavorites = JSON.parse(favotires.contents)
+        arrayFavorites.push(updateFavoriteDto.content)
+        favotires.contents = JSON.stringify(arrayFavorites)
+      }
+
+      await this.favoriteRepository
+        .createQueryBuilder()
+        .update(Favorite)
+        .set({
+          contents: favotires.contents
+        })
+        .where('id = :id', { id: favotires.id })
+        .execute();
+
+      return favotires;
+    } catch (err) {
+      console.log(err)
+      throw new HttpException("Error to add content to favorites", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+  }
+
+  async removeFavorites(id: number, headers: any) {
+    try {
+      const favotires = await this.getFavorites(headers)
+      const arrayFavorites = JSON.parse(favotires.contents)
+
+      const result = arrayFavorites.filter((item) => {
+        return +item.id !== id;
+      })
+
+      await this.favoriteRepository
+        .createQueryBuilder()
+        .update(Favorite)
+        .set({
+          contents: JSON.stringify(result)
+        })
+        .where('id = :id', { id: favotires.id })
+        .execute();
+
+      return result;
+    } catch (err) {
+      console.log(err)
+      throw new HttpException("Error to add content to favorites", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+  }
 }
