@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PlaylistsModule } from './playlists/playlists.module';
 import { ApiServiceModule } from './api-service/api-service.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
     imports: [ConfigModule.forRoot(), TypeOrmModule.forRootAsync({
@@ -17,7 +18,8 @@ import { ApiServiceModule } from './api-service/api-service.module';
         AuthModule,
         UsersModule,
         PlaylistsModule,
-        ApiServiceModule
+        ApiServiceModule,
+        FavoritesModule
     ],
     controllers: [AppController],
     providers: [AppService],
