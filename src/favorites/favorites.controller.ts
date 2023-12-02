@@ -16,4 +16,21 @@ export class FavoritesController {
   ) {
     return this.favoritesService.findAll(headers);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('add')
+  addFavorites(
+    @Headers() headers,
+    @Body() updateFavoriteDto: UpdateFavoriteDto
+  ) {
+    return this.favoritesService.addFavorites(headers, updateFavoriteDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('remove/:id')
+  remove(
+    @Param('id') id: string,
+    @Headers() headers) {
+    return this.favoritesService.removeFavorites(+id, headers);
+  }
 }
