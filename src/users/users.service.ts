@@ -22,10 +22,24 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(createUserDto.email)) {
+      throw new BadRequestException('Invalid email format');
+    }
+
+    if (!createUserDto.name || !createUserDto.password) {
+      throw new BadRequestException('Name and password are required');  
+    }
+
+    if (createUserDto.password.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters long');
+    }
+
     const date = new Date();
 
     const checkIfEmailExists = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
+      where: { email: createUserDto.email }, 
     });
 
     if (!checkIfEmailExists) {
