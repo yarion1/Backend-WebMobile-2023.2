@@ -29,7 +29,7 @@ export class UsersService {
     }
 
     if (!createUserDto.name || !createUserDto.password) {
-      throw new BadRequestException('Name and password are required');  
+      throw new BadRequestException('Name and password are required');
     }
 
     if (createUserDto.password.length < 6) {
@@ -39,7 +39,7 @@ export class UsersService {
     const date = new Date();
 
     const checkIfEmailExists = await this.usersRepository.findOne({
-      where: { email: createUserDto.email }, 
+      where: { email: createUserDto.email },
     });
 
     if (!checkIfEmailExists) {
@@ -93,14 +93,62 @@ export class UsersService {
     }
   }
 
-  async update(headers: any, updateUserDto: UpdateUserDto) {
+  async findUserById(headers: any) {
     try {
       const token = JSON.stringify(this.jwtService.decode(headers.authorization.split(" ")[1]));
       const user_id = JSON.parse(token)._id;
 
-      updateUserDto.password = await this.bcryptPassword(
-        updateUserDto.password,
-      );
+      const user = await this.usersRepository.findOne({
+        where: {
+          id: user_id
+        },
+        select: [
+          "name",
+          "email"
+        ]
+      })
+
+      return user;
+    } catch (err) {
+      console.log(err)
+      throw new HttpException("Error to get user", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+  }
+
+  async update(headers: any, updateUserDto: UpdateUserDto) {
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(updateUserDto.email)) {
+      throw new BadRequestException('Formato de Email Inválido');
+    }
+
+    if (!updateUserDto.name) {
+      throw new BadRequestException('Preencha Nome');
+    }
+
+    if (updateUserDto.newPassword && updateUserDto.newPassword.length < 6) {
+      throw new BadRequestException('Nova Senha Deve Ter no Minímo 6 Caracteres');
+    }
+
+    try {
+      const token = JSON.stringify(this.jwtService.decode(headers.authorization.split(" ")[1]));
+      const user_id = JSON.parse(token)._id;
+
+      const user = await this.usersRepository.findOne({
+        where: {
+          id: user_id
+        }
+      })
+
+      if (!(await bcrypt.compare(updateUserDto.password, user.password))) {
+        throw new HttpException("Senha atual incorreta", HttpStatus.UNAUTHORIZED)
+      }
+
+      if (updateUserDto.newPassword) {
+        updateUserDto.newPassword = await this.bcryptPassword(
+          updateUserDto.newPassword,
+        );
+      }
 
       await this.usersRepository
         .createQueryBuilder()
@@ -108,14 +156,16 @@ export class UsersService {
         .set({
           name: updateUserDto.name,
           email: updateUserDto.email,
-          password: updateUserDto.password
+          password: updateUserDto.newPassword ? updateUserDto.newPassword : user.password
         })
         .where('id = :id', { id: user_id })
         .execute();
 
       return true;
     } catch (err) {
-      console.log(err)
+      if (err.response === 'Senha atual incorreta') {
+        throw new HttpException("Senha atual incorreta", HttpStatus.UNAUTHORIZED)
+      }
       throw new HttpException("Error to update users", HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
