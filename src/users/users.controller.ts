@@ -7,7 +7,7 @@ import { Headers } from '@nestjs/common';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -15,11 +15,11 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-
   @UseGuards(JwtAuthGuard)
-  @Get('users/:email')
-  findByEmail(@Param('email') email: string) {
-    return this.usersService.findByEmail(email);
+  @Get('')
+  findByEmail(
+    @Headers() headers,) {
+    return this.usersService.findUserById(headers);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -27,7 +27,7 @@ export class UsersController {
   update(
     @Headers() headers,
     @Param('id') id: string, @Body() updateUserDto: UpdateUserDto
-    ) {
+  ) {
     return this.usersService.update(headers, updateUserDto);
   }
 }
