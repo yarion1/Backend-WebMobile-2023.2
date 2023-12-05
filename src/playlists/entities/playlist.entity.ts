@@ -12,7 +12,7 @@ export class Playlist {
     @Column()
     type: string;
 
-    @Column("json")
+    @Column("json", { nullable: true })
     contents: string;
 
     @ManyToOne(() => User, (user) => user.id)
