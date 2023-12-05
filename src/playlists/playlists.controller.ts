@@ -33,9 +33,28 @@ export class PlaylistsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':id')
+  @Get('/name')
+  getPlayListName(
+    @Headers() headers,
+  ) {
+    return this.playlistsService.getPlayListName(headers);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('add/:id')
   update(@Param('id') id: string, @Body() updatePlaylistDto: UpdatePlaylistDto) {
-    return this.playlistsService.update(+id, updatePlaylistDto);
+    return this.playlistsService.addContent(+id, updatePlaylistDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('remove/:id')
+  removeContent(
+    @Param('id') id: string,
+    @Body() idContent: {
+      id: number
+    }
+  ) {
+    return this.playlistsService.removeContent(+id, idContent);
   }
 
   @UseGuards(JwtAuthGuard)

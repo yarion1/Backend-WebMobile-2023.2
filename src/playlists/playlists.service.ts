@@ -20,6 +20,7 @@ export class PlaylistsService {
 
     const token = JSON.stringify(this.jwtService.decode(headers.authorization.split(" ")[1]));
     const id_user = JSON.parse(token)._id;
+
     try {
       const data = await this.playlistRepository.find({
         where: {
@@ -27,9 +28,49 @@ export class PlaylistsService {
         }
       })
 
-      return data
+      const playlistsParsed = data.map(playlist => {
+        return {
+          ...playlist,
+          contents: JSON.parse(playlist.contents)
+        };
+      });
+
+      return playlistsParsed
     } catch (err) {
-      throw new HttpException("Error to create playlists", HttpStatus.INTERNAL_SERVER_ERROR)
+      console.log(err)
+      throw new HttpException("Error to list playlists", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+  }
+
+  async getPlayListName(headers: any) {
+    const token = JSON.stringify(this.jwtService.decode(headers.authorization.split(" ")[1]));
+    const id_user = JSON.parse(token)._id;
+
+    try {
+      const data = await this.playlistRepository.find({
+        where: {
+          user_id: id_user
+        },
+        select: [
+          "id",
+          "name",
+          "contents"
+        ]
+      })
+
+      const playlistsParsed = data.map(playlist => {
+        const contents = JSON.parse(playlist.contents)
+
+        return {
+          ...playlist,
+          contents: contents.map(item => item.id)
+        };
+      });
+
+      return playlistsParsed
+    } catch (err) {
+      console.log(err)
+      throw new HttpException("Error to list playlists", HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -42,7 +83,6 @@ export class PlaylistsService {
     try {
       const playlist = this.playlistRepository.create({
         ...createPlaylistDto,
-        contents: JSON.stringify(createPlaylistDto.contents),
         created_at: date,
         updated_at: date,
         user_id: id_user
@@ -56,6 +96,71 @@ export class PlaylistsService {
     }
   }
 
+  async getPlaylist(id: number) {
+    try {
+      const playlist = await this.playlistRepository.findOne({
+        where: {
+          id
+        }
+      })
+
+      return playlist;
+    } catch (err) {
+      console.log(err)
+      throw new HttpException("Error to get playlist", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+  }
+
+  async addContent(id: number, updatePlaylistDto: UpdatePlaylistDto) {
+    try {
+      const playlist = await this.getPlaylist(id)
+
+      if (!playlist.contents) {
+        playlist.contents = JSON.stringify([updatePlaylistDto.contents])
+      } else {
+        const arrayFavorites = JSON.parse(playlist.contents)
+        arrayFavorites.push(updatePlaylistDto.contents)
+        playlist.contents = JSON.stringify(arrayFavorites)
+      }
+
+      await this.playlistRepository
+        .createQueryBuilder()
+        .update(Playlist)
+        .set({
+          contents: playlist.contents
+        })
+        .where('id = :id', { id: id })
+        .execute();
+
+      return playlist;
+    } catch (err) {
+      console.log(err)
+      throw new HttpException("Error to add content to favorites", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+  }
+
+
+  async removeContent(id: number, idContent: { id: number }) {
+    try {
+      const playlist = await this.getPlaylist(id)
+      const arrayContents = JSON.parse(playlist.contents)
+      playlist.contents = arrayContents.filter((item) => item.id !== idContent.id)
+
+      await this.playlistRepository
+        .createQueryBuilder()
+        .update(Playlist)
+        .set({
+          contents: JSON.stringify(playlist.contents)
+        })
+        .where('id = :id', { id: id })
+        .execute();
+
+      return playlist;
+    } catch (err) {
+      console.log(err)
+      throw new HttpException("Error to add content to favorites", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+  }
 
   async findById(id: number) {
     try {
