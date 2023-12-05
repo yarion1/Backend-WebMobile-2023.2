@@ -31,7 +31,7 @@ export class PlaylistsService {
       const playlistsParsed = data.map(playlist => {
         return {
           ...playlist,
-          contents: JSON.parse(playlist.contents)
+          contents: playlist.contents ? JSON.parse(playlist.contents) : []
         };
       });
 
@@ -63,7 +63,7 @@ export class PlaylistsService {
 
         return {
           ...playlist,
-          contents: contents.map(item => item.id)
+          contents: playlist.contents ? contents.map(item => item.id) : []
         };
       });
 
