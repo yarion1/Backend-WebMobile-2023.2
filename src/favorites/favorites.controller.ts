@@ -18,6 +18,14 @@ export class FavoritesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('check-favorites')
+  checkFavorites(
+    @Headers() headers,
+  ) {
+    return this.favoritesService.checkFavorites(headers);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch('add')
   addFavorites(
     @Headers() headers,

@@ -51,6 +51,27 @@ export class FavoritesService {
     }
   }
 
+  async checkFavorites(headers: any) {
+    try {
+      const token = JSON.stringify(this.jwtService.decode(headers.authorization.split(" ")[1]));
+      const user_id = JSON.parse(token)._id;
+
+      const favorite = await this.favoriteRepository.findOne({
+        where: {
+          user_id
+        }
+      })
+
+      const contents = JSON.parse(favorite.contents)
+      favorite.contents = contents ? contents.map(item => item.id) : []
+
+      return favorite;
+    } catch (err) {
+      console.log(err)
+      throw new HttpException("Error to get favotires", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+  }
+
   async getFavorites(headers: any) {
     try {
       const token = JSON.stringify(this.jwtService.decode(headers.authorization.split(" ")[1]));
